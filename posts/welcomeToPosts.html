@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cardo:ital,wght@0,400;0,700;1,400&family=DM+Serif+Text:ital@0;1&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Playwrite+AU+SA:wght@100..400&display=swap" rel="stylesheet">
+    <title>Ian's blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'catskill-white': {
+                            '50': '#f6f9f9',
+                            '100': '#ebf1f2',
+                            '200': '#d4e2e3',
+                            '300': '#aec9cb',
+                            '400': '#82abae',
+                            '500': '#639294',
+                            '600': '#4e787b',
+                            '700': '#406064',
+                            '800': '#385154',
+                            '900': '#324648',
+                            '950': '#212e30',
+                        },
+                        'curious-blue': {
+                            '50': '#f1f8fe',
+                            '100': '#e2f1fc',
+                            '200': '#bee2f9',
+                            '300': '#84caf5',
+                            '400': '#43b0ed',
+                            '500': '#1b98e0',
+                            '600': '#0d76bc',
+                            '700': '#0c5e98',
+                            '800': '#0e517e',
+                            '900': '#124468',
+                            '950': '#0c2b45',
+                        },
+                        'lochmara': {
+                            '50': '#f0f9ff',
+                            '100': '#dff2ff',
+                            '200': '#b9e7fe',
+                            '300': '#7bd5fe',
+                            '400': '#34c0fc',
+                            '500': '#0aa9ed',
+                            '600': '#0087cb',
+                            '700': '#0077b6',
+                            '800': '#055b87',
+                            '900': '#0a4b70',
+                            '950': '#07304a',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-catskill-white-50 w-full grid grid-cols-7">
+    <div class="col-span-2"></div>
+    <div class="font-serif col-span-3">
+        <nav class="flex flex-row py-10 text-lg">
+            <!-- Nav Bar -->
+            <a class="font-bold hover:underline cursor-pointer" href="/">IANYEYZ.github.io</a>
+            <a class="px-6 hover:underline cursor-pointer" href="/projects">projects</a>
+            <a class="hover:underline cursor-pointer" href="/posts">posts</a>
+        </nav>
+        <div class="py-5">
+            <p class="text-3xl font-bold">
+              Welcome To Posts
+            </p>
+            <p class="py-2 text-lg">
+              I guess writing is not that hard though...
+              Nothing really to show here, but here is my Discord Server: <a href="https://discord.gg/XdDBBR9y" class="underline decoration-curious-blue-500 hover:decoration-slate-500">Ian's Cafe</a>
+              Do general Chit-Chat, See my projects, or whatever you want there :P, just remeber the server rule
+            </p>
+        </div>
+    </div>
+    <div class="col-span-2"></div>
+</body>
+</html>
