@@ -75,6 +75,16 @@
         button:hover {
             background-color: #45a049;
         }
+
+        #seed {
+            padding: 10px 20px;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
         
         #result {
             font-size: 18px;
@@ -137,6 +147,11 @@
     </div>
     
     <div class="game-container">
+        <div>
+            <h3>自定义图片 <small>(目前仅支持通过 seed 随机指定和通过 id 指定, <a href="https://picsum.photos/">关于 seed 和 id 的更多信息</a>)</small></h3>
+            <div>Seed or id <small>(数字视为 id, 其它一律视为 seed)</small>: </div>
+            <div><input id="seed"> <button id="seedSubmit">Submit</button></div>
+        </div>
         <div class="image-container">
             <h3>原始图片 <small>(仅用于参考)</small></h3>
             <img id="originalImage" class="hidden">
@@ -179,7 +194,13 @@
             'https://picsum.photos/id/16/800/500',
             'https://picsum.photos/id/17/800/500',
             'https://picsum.photos/id/18/800/500',
-            'https://picsum.photos/id/19/800/500'
+            'https://picsum.photos/id/19/800/500',
+            'https://picsum.photos/id/9/800/500',
+            'https://picsum.photos/id/34/800/500',
+            'https://picsum.photos/id/33/800/500',
+            'https://picsum.photos/id/32/800/500',
+            'https://picsum.photos/id/31/800/500',
+            'https://picsum.photos/id/30/800/500'
         ];
         
         // 游戏变量
@@ -188,6 +209,7 @@
         let ctx = modifiedCanvas.getContext('2d');
         let targetColor = { r: 0, g: 0, b: 0 };
         let startTime = 0;
+        let nxtImg = null;
         
         // DOM元素
         const originalImageElement = document.getElementById('originalImage');
@@ -200,6 +222,8 @@
         const scoreDisplay = document.getElementById('scoreDisplay');
         const scoreMessage = document.getElementById('scoreMessage');
         const targetColorHint = document.getElementById('targetColorHint');
+        const seedOrIdVal = document.getElementById('seed')
+        const seedSubmitButton = document.getElementById('seedSubmit')
         
         // 初始化游戏
         function initGame() {
@@ -209,9 +233,11 @@
         }
         
         // 加载随机图片
-        function loadRandomImage() {
+        function loadRandomImage(givenImg = null) {
             const randomIndex = Math.floor(Math.random() * imageLibrary.length);
-            const imgUrl = imageLibrary[randomIndex];
+            let imgUrl;
+            if (givenImg == null) imgUrl = imageLibrary[randomIndex]
+            else imgUrl = givenImg
             
             originalImage.crossOrigin = "Anonymous"; // 解决跨域问题
             originalImage.onload = function() {
@@ -305,17 +331,13 @@
             const totalDiff = diffR + diffG + diffB;
             
             // 计算时间（秒）
-            const timeSpent = 90;
+            const timeSpent = 1000;
             
             // 基础分（差异越小分数越高）
             let score = Math.max(0, 100 - Math.floor(totalDiff / 7.65));
             
-            // 时间奖励（越快完成分数越高，最多加20分）
-            const timeBonus = Math.max(0, 20 - Math.floor(timeSpent / 3));
-            score += timeBonus;
-            
             // 确保分数在0-120之间
-            score = Math.max(0, Math.min(120, score));
+            score = Math.max(0, Math.min(100, score));
             
             return {
                 score: score,
@@ -326,10 +348,10 @@
         
         // 获取评分消息
         function getScoreMessage(score) {
-            if (score >= 100) return "完美！你有一双敏锐的眼睛！";
+            if (score >= 90) return "完美！你有一双敏锐的眼睛！";
             if (score >= 80) return "太棒了！几乎完美！";
-            if (score >= 60) return "不错！继续努力！";
-            if (score >= 40) return "还可以，但还有提升空间";
+            if (score >= 70) return "不错！继续努力！";
+            if (score >= 60) return "还可以，但还有提升空间";
             return "需要更多的练习哦";
         }
         
@@ -367,11 +389,21 @@
             // 按钮事件
             checkButton.addEventListener('click', checkSolution);
             
-            newImageButton.addEventListener('click', loadRandomImage);
+            newImageButton.addEventListener('click', () => {
+                loadRandomImage(nxtImg)
+                nxtImg = null
+            });
             
             showOriginalButton.addEventListener('click', function() {
                 originalImageElement.classList.toggle('hidden');
             });
+
+            seedSubmitButton.addEventListener('click', () => {
+                if (isNaN(parseFloat(seedOrIdVal.value)))
+                    nxtImg = `https://picsum.photos/seed/${seedOrIdVal.value}/800/500`
+                else
+                    nxtImg = `https://picsum.photos/id/${seedOrIdVal.value}/800/500`
+            })
         }
         
         // 启动游戏
