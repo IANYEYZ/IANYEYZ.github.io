@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepseek 内容生成器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: white;
+            overflow-y: auto;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        label {
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        input, textarea {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #34495e;
+            color: white;
+        }
+        
+        textarea {
+            resize: none;
+            min-height: 100px;
+        }
+        
+        button {
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        #htmlOutput {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #3498db;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>内容生成器</h2>
+        
+        <div class="input-group">
+            <label for="apiKey">Deepseek API 密钥</label>
+            <input type="password" id="apiKey" placeholder="输入您的Deepseek API密钥">
+        </div>
+        
+        <div class="input-group">
+            <label for="topic">主题</label>
+            <textarea id="topic" placeholder="输入您想生成的内容主题"></textarea>
+        </div>
+        
+        <button id="submitBtn">生成内容</button>
+        
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>正在生成内容，请稍候...</p>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div id="htmlOutput">
+            <p>生成的内容将显示在这里...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submitBtn = document.getElementById('submitBtn');
+            const apiKeyInput = document.getElementById('apiKey');
+            const topicInput = document.getElementById('topic');
+            const htmlOutput = document.getElementById('htmlOutput');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            
+            submitBtn.addEventListener('click', async function() {
+                const apiKey = apiKeyInput.value.trim();
+                const topic = topicInput.value.trim();
+                
+                if (!apiKey) {
+                    alert('请输入Deepseek API密钥');
+                    return;
+                }
+                
+                if (!topic) {
+                    alert('请输入主题');
+                    return;
+                }
+                
+                // 显示加载指示器
+                loadingIndicator.style.display = 'block';
+                htmlOutput.innerHTML = '';
+                
+                try {
+                    const generatedHTML = await getPage(apiKey, topic);
+                    htmlOutput.innerHTML = generatedHTML;
+                } catch (error) {
+                    console.error('生成内容时出错:', error);
+                    htmlOutput.innerHTML = `<p style="color: red;">生成内容时出错: ${error.message}</p>`;
+                } finally {
+                    // 隐藏加载指示器
+                    loadingIndicator.style.display = 'none';
+                }
+            });
+            
+            // 按Enter键也可以触发提交
+            topicInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    submitBtn.click();
+                }
+            });
+        });
+        
+        /**
+         * 使用Deepseek API获取生成的HTML内容
+         * @param {string} apiKey - Deepseek API密钥
+         * @param {string} topic - 内容主题
+         * @returns {Promise<string>} - 生成的HTML内容
+         */
+        async function getPage(apiKey, topic) {
+            // 构建提示词
+            const prompt = `你的任务：
+
+写一篇架空新闻学风格的规则怪谈
+
+什么是架空新闻学：
+
+以官方的口吻，严肃的形式叙述的一些条例，其内容往往虽然部分贴近现实但是细思极恐
+
+具体要求：
+
+可以且建议出现自相矛盾的内容，但是如果有自相矛盾，那么请把某一个（或两个都）用红字表示，红字代表可能错误
+用绿字表示做了不会有事但实际上建议不做的事（例如绿色的“做 AAA”实际上代表了不建议做 AAA）
+越恐怖越好
+
+如何恐怖一点：
+
+可以挑战日常的常识，如你可以写：“楼房一般是不会移动的，如果移动了，也请您不要惊慌，……”
+可以时不时暗中提到“祂”等
+使用“请您不要惊慌”等词语
+故意调动起看规则者的害怕心里
+
+不允许出现任何的解释，规则用 HTML 输出，不输出任何别的内容，不要包含 <!DOCTYPE> 等，只要 <body> 中的内容
+
+主题：
+
+${topic}`;
+            
+            // 调用Deepseek API
+            const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: "deepseek-chat",
+                    messages: [
+                        {
+                            role: "user",
+                            content: prompt
+                        }
+                    ],
+                    temperature: 0.7
+                })
+            });
+                
+            if (!response.ok) {
+                throw new Error(`API请求失败: ${response.status}`);
+            }
+                
+            const data = await response.json();
+                
+            // 从API响应中提取生成的内容
+            const generatedContent = data.choices?.[0]?.message?.content || "未收到有效内容";
+            
+            return generatedContent;
+        }
+    </script>
+</body>
+</html>
